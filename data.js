@@ -1,5 +1,5 @@
 /* ============================================================
-   VitalArc — Data Layer: Exercises & Routine Templates
+   Pinnacle — Fitness Data & Exercise Library
    ============================================================ */
 
 const EXERCISES = [

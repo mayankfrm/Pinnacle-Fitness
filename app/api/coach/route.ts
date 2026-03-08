@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     // const model = googleAI.getGenerativeModel({ model: "gemini-pro" });
     // const result = await model.generateContent(prompt);
     
-    const mockResponse = `As your VitalArc AI Coach, I suggest focusing on ${userContext.goal === 'muscle_gain' ? 'progressive overload' : 'caloric deficit'} this week. Your dedication is showing!`;
+    const mockResponse = `As your Pinnacle AI Coach, I suggest focusing on ${userContext.goal === 'muscle_gain' ? 'progressive overload' : 'caloric deficit'} this week. Your dedication is showing!`;
 
     return NextResponse.json({ response: mockResponse });
   } catch (err: any) {

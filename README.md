@@ -1,4 +1,4 @@
-# VitalArc — Next.js Full-Stack Edition 🌲⚡
+# Pinnacle — Next.js Full-Stack Edition 🌲⚡
 
 A premium, immersive fitness application built with the "Cyber-Forest" (Electric Nature) design theme. Migrated from vanilla HTML/JS to a modern Next.js stack.
 
@@ -46,4 +46,4 @@ A premium, immersive fitness application built with the "Cyber-Forest" (Electric
 - **Secondary Text**: `#8bba9b` (Forest Green)
 
 ---
-*Built with dedication for the VitalArc Fitness Community.*
+*Built with dedication for the Pinnacle Fitness Community.*

@@ -6,7 +6,7 @@ import Sidebar from "@/components/Sidebar";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "VitalArc — Your Personal Fitness Companion",
+  title: "Pinnacle — Your Personal Fitness Companion",
   description: "Next-gen fitness tracking and routine generation",
 };
 

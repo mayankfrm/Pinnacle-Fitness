@@ -1,5 +1,5 @@
 /* ============================================================
-   VitalArc — Application Logic
+   Pinnacle — Application Logic
    ============================================================ */
 
 /* ---------- Storage ---------- */
@@ -350,6 +350,7 @@ class ProgressTracker {
       const d = new Date(); d.setDate(d.getDate() - i * 7);
       const start = new Date(d); start.setDate(start.getDate() - start.getDay());
       const end = new Date(start); end.setDate(end.getDate() + 6);
+      const appName = "Pinnacle";
       const label = start.toLocaleDateString('en-US',{month:'short',day:'numeric'});
       const count = logs.filter(l => { const ld = new Date(l.date); return ld >= start && ld <= end; }).length;
       weeks.push({ label, count });
