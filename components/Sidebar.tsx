@@ -42,14 +42,19 @@ export default function Sidebar() {
         if (session.user.user_metadata?.full_name) {
           setFullName(session.user.user_metadata.full_name);
         } else {
-          // Then fallback to profiles table
+          // Then check profiles table
           const { data } = await supabase
             .from('profiles')
             .select('full_name')
             .eq('id', session.user.id)
-            .single();
+            .maybeSingle();
           
-          if (data?.full_name) setFullName(data.full_name);
+          if (data?.full_name) {
+            setFullName(data.full_name);
+          } else if (session.user.email) {
+            // Last resort: use email snippet
+            setFullName(session.user.email.split('@')[0]);
+          }
         }
       }
     };
