@@ -7,6 +7,8 @@ import { Activity } from "lucide-react";
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const supabase = createClientComponentClient();
@@ -20,25 +22,34 @@ export default function LoginPage() {
     checkUser();
   }, [supabase]);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error, data } = await supabase.auth.signInWithPassword({ email, password });
-    
-    if (error) {
-      setMessage(error.message);
-      setLoading(false);
-    } else if (data.session) {
-      window.location.href = "/";
-    }
-  };
+    setMessage("");
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    const { error } = await supabase.auth.signUp({ email, password });
-    if (error) setMessage("Check your email for confirmation!");
-    else setMessage("Success! You can now log in.");
+    if (isSignUp) {
+      const { error } = await supabase.auth.signUp({ 
+        email, 
+        password,
+        options: {
+          data: {
+            full_name: fullName
+          }
+        }
+      });
+      if (error) {
+        setMessage(error.message);
+      } else {
+        setMessage("Success! Check your email for confirmation.");
+      }
+    } else {
+      const { error, data } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        setMessage(error.message);
+      } else if (data.session) {
+        window.location.href = "/";
+      }
+    }
     setLoading(false);
   };
 
@@ -56,11 +67,25 @@ export default function LoginPage() {
           <p className="text-[#8bba9b] text-sm mt-2">Elevate your fitness journey</p>
         </div>
 
-        <form className="space-y-4">
+        <form onSubmit={handleAuth} className="space-y-4">
+          {isSignUp && (
+            <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+              <label className="block text-xs font-bold text-[#5c856a] uppercase mb-1.5 ml-1">Full Name</label>
+              <input 
+                type="text" 
+                required
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className="w-full bg-[#06110b] border border-[rgba(57,255,20,0.15)] rounded-xl py-3 px-4 text-[#e2f8e8] outline-none focus:border-[#39ff14] transition-colors"
+                placeholder="John Doe"
+              />
+            </div>
+          )}
           <div>
             <label className="block text-xs font-bold text-[#5c856a] uppercase mb-1.5 ml-1">Email Address</label>
-            <input
-              type="email"
+            <input 
+              type="email" 
+              required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-[#06110b] border border-[rgba(57,255,20,0.15)] rounded-xl py-3 px-4 text-[#e2f8e8] outline-none focus:border-[#39ff14] transition-colors"
@@ -69,8 +94,9 @@ export default function LoginPage() {
           </div>
           <div>
             <label className="block text-xs font-bold text-[#5c856a] uppercase mb-1.5 ml-1">Password</label>
-            <input
-              type="password"
+            <input 
+              type="password" 
+              required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full bg-[#06110b] border border-[rgba(57,255,20,0.15)] rounded-xl py-3 px-4 text-[#e2f8e8] outline-none focus:border-[#39ff14] transition-colors"
@@ -80,20 +106,20 @@ export default function LoginPage() {
 
           {message && <p className="text-xs text-center text-[#39ff14] bg-[rgba(57,255,20,0.05)] py-2 rounded-lg">{message}</p>}
 
-          <div className="pt-4 flex gap-3">
-            <button
-              onClick={handleLogin}
+          <div className="pt-4 flex flex-col gap-3">
+            <button 
+              type="submit"
               disabled={loading}
-              className="flex-1 bg-gradient-to-r from-[#39ff14] to-[#00ffff] text-black font-black py-3 rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_20px_rgba(57,255,20,0.2)]"
+              className="w-full bg-gradient-to-r from-[#39ff14] to-[#00ffff] text-black font-black py-3 rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_20px_rgba(57,255,20,0.2)]"
             >
-              {loading ? "..." : "Login"}
+              {loading ? "..." : (isSignUp ? "Create Account" : "Login")}
             </button>
-            <button
-              onClick={handleSignUp}
-              disabled={loading}
-              className="flex-1 bg-[rgba(255,255,255,0.03)] text-[#e2f8e8] border border-[rgba(255,255,255,0.1)] font-bold py-3 rounded-xl hover:bg-[rgba(255,255,255,0.1)] transition-all"
+            <button 
+              type="button"
+              onClick={() => setIsSignUp(!isSignUp)}
+              className="text-[#5c856a] text-xs font-bold hover:text-[#39ff14] transition-colors mt-2"
             >
-              Sign Up
+              {isSignUp ? "Already have an account? Login" : "Don't have an account? Sign Up"}
             </button>
           </div>
         </form>

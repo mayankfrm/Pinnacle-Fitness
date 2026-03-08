@@ -13,6 +13,7 @@ import {
 import { useState, useEffect } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import HeroScene from "@/components/HeroScene";
+import AICoach from "@/components/AICoach";
 
 export default function Dashboard() {
   const [userName, setUserName] = useState("User");
@@ -21,8 +22,12 @@ export default function Dashboard() {
   useEffect(() => {
     const getUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user?.email) {
-        setUserName(session.user.email.split('@')[0]);
+      if (session?.user?.id) {
+        if (session.user.user_metadata?.full_name) {
+          setUserName(session.user.user_metadata.full_name);
+        } else if (session.user.email) {
+          setUserName(session.user.email.split('@')[0]);
+        }
       }
     };
     getUser();
@@ -63,6 +68,9 @@ export default function Dashboard() {
             </div>
           ))}
         </div>
+        
+        {/* AI Coach Insight */}
+        <AICoach />
 
         {/* Quick Actions */}
         <section>
