@@ -32,11 +32,14 @@ const navItems = [
 export default function Sidebar() {
   const pathname = usePathname();
   const supabase = createClientComponentClient();
-  const [fullName, setFullName] = useState("Pinnacle User"); // Added fullName state
+  const [fullName, setFullName] = useState("Pinnacle User");
+  const [hasSession, setHasSession] = useState<boolean | null>(null);
 
   useEffect(() => {
     const getUserProfile = async () => {
       const { data: { session } } = await supabase.auth.getSession();
+      setHasSession(!!session);
+      
       if (session?.user?.id) {
         // First check session metadata
         if (session.user.user_metadata?.full_name) {
@@ -65,11 +68,13 @@ export default function Sidebar() {
     await supabase.auth.signOut();
     window.location.href = "/login";
   };
+  if (pathname === "/login" || hasSession === false) return null;
+
   return (
     <aside className="fixed left-0 top-0 bottom-0 w-[250px] bg-[#0a1a10] border-r border-[rgba(57,255,20,0.15)] flex flex-col p-3 z-50">
       <div className="flex items-center gap-3 p-6 mb-4 border-b border-[rgba(57,255,20,0.15)]">
           <div className="w-8 h-8 bg-gradient-to-br from-[#39ff14] to-[#00ffff] rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(57,255,20,0.4)]">
-             <Activity className="text-black" size={18} /> {/* Changed size to 18 */}
+             <Activity className="text-black" size={18} />
           </div>
           <span className="text-xl font-black tracking-tighter text-[#e2f8e8] group-hover:text-[#39ff14] transition-colors">Pinnacle</span>
         </div>
@@ -103,29 +108,31 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <div className="p-2 mt-auto"> {/* Updated parent div for profile */}
-        <div className="bg-[#0f2416] rounded-2xl p-4 border border-[rgba(57,255,20,0.1)] group/profile relative overflow-hidden"> {/* New profile div */}
-          <div className="flex items-center gap-3 relative z-10">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#39ff14] to-[#00ffff] p-[2px]">
-              <div className="w-full h-full rounded-full bg-[#0a1a10] flex items-center justify-center">
-                <Smile className="text-[#39ff14]" size={20} /> {/* Used Smile icon */}
+      {hasSession && (
+        <div className="p-2 mt-auto">
+          <div className="bg-[#0f2416] rounded-2xl p-4 border border-[rgba(57,255,20,0.1)] group/profile relative overflow-hidden">
+            <div className="flex items-center gap-3 relative z-10">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#39ff14] to-[#00ffff] p-[2px]">
+                <div className="w-full h-full rounded-full bg-[#0a1a10] flex items-center justify-center">
+                  <Smile className="text-[#39ff14]" size={20} />
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[13px] font-semibold">{fullName}</span>
+                <span className="text-[10px] text-[#5c856a] font-bold uppercase tracking-wider">Premium Member</span>
               </div>
             </div>
-            <div className="flex flex-col">
-              <span className="text-[13px] font-semibold">{fullName}</span> {/* Used fullName state */}
-              <span className="text-[10px] text-[#5c856a] font-bold uppercase tracking-wider">Premium Member</span> {/* Added Premium Member */}
-            </div>
+            
+            <button 
+              onClick={handleLogout}
+              className="w-full mt-4 flex items-center justify-center gap-2 py-2 bg-[rgba(255,69,58,0.1)] text-[#ff453a] rounded-xl text-xs font-bold hover:bg-[#ff453a] hover:text-white transition-all border border-transparent hover:border-[#ff453a]/50"
+            >
+              <LogOut size={14} />
+              Log Out
+            </button>
           </div>
-          
-          <button 
-            onClick={handleLogout}
-            className="w-full mt-4 flex items-center justify-center gap-2 py-2 bg-[rgba(255,69,58,0.1)] text-[#ff453a] rounded-xl text-xs font-bold hover:bg-[#ff453a] hover:text-white transition-all border border-transparent hover:border-[#ff453a]/50"
-          >
-            <LogOut size={14} /> {/* Updated LogOut icon size */}
-            Log Out
-          </button>
         </div>
-      </div>
+      )}
     </aside>
   );
 }
