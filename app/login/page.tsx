@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Activity } from "lucide-react";
 
@@ -9,13 +10,18 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) setMessage(error.message);
-    setLoading(false);
+    if (error) {
+      setMessage(error.message);
+      setLoading(false);
+    } else {
+      router.push("/");
+    }
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -32,7 +38,7 @@ export default function LoginPage() {
       <div className="max-w-md w-full bg-[#0a1a10] border border-[rgba(57,255,20,0.1)] rounded-3xl p-8 shadow-2xl relative overflow-hidden group">
         {/* Decorative Glow */}
         <div className="absolute -top-24 -right-24 w-48 h-48 bg-[#39ff14] opacity-10 blur-[80px] group-hover:opacity-20 transition-opacity" />
-        
+
         <div className="flex flex-col items-center mb-8">
           <div className="w-16 h-16 bg-gradient-to-br from-[#39ff14] to-[#00ffff] rounded-2xl flex items-center justify-center mb-4 shadow-[0_0_30px_rgba(57,255,20,0.3)]">
             <Activity className="text-black" size={32} />
@@ -44,8 +50,8 @@ export default function LoginPage() {
         <form className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-[#5c856a] uppercase mb-1.5 ml-1">Email Address</label>
-            <input 
-              type="email" 
+            <input
+              type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-[#06110b] border border-[rgba(57,255,20,0.15)] rounded-xl py-3 px-4 text-[#e2f8e8] outline-none focus:border-[#39ff14] transition-colors"
@@ -54,8 +60,8 @@ export default function LoginPage() {
           </div>
           <div>
             <label className="block text-xs font-bold text-[#5c856a] uppercase mb-1.5 ml-1">Password</label>
-            <input 
-              type="password" 
+            <input
+              type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full bg-[#06110b] border border-[rgba(57,255,20,0.15)] rounded-xl py-3 px-4 text-[#e2f8e8] outline-none focus:border-[#39ff14] transition-colors"
@@ -66,14 +72,14 @@ export default function LoginPage() {
           {message && <p className="text-xs text-center text-[#39ff14] bg-[rgba(57,255,20,0.05)] py-2 rounded-lg">{message}</p>}
 
           <div className="pt-4 flex gap-3">
-            <button 
+            <button
               onClick={handleLogin}
               disabled={loading}
               className="flex-1 bg-gradient-to-r from-[#39ff14] to-[#00ffff] text-black font-black py-3 rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_20px_rgba(57,255,20,0.2)]"
             >
               {loading ? "..." : "Login"}
             </button>
-            <button 
+            <button
               onClick={handleSignUp}
               disabled={loading}
               className="flex-1 bg-[rgba(255,255,255,0.03)] text-[#e2f8e8] border border-[rgba(255,255,255,0.1)] font-bold py-3 rounded-xl hover:bg-[rgba(255,255,255,0.1)] transition-all"
