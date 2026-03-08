@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Activity } from "lucide-react";
@@ -12,15 +12,25 @@ export default function LoginPage() {
   const [message, setMessage] = useState("");
   const router = useRouter();
 
+  // Auto-redirect if already logged in
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) window.location.href = "/";
+    };
+    checkUser();
+  }, []);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error, data } = await supabase.auth.signInWithPassword({ email, password });
+    
     if (error) {
       setMessage(error.message);
       setLoading(false);
-    } else {
-      router.push("/");
+    } else if (data.session) {
+      window.location.href = "/";
     }
   };
 
