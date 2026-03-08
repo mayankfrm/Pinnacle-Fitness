@@ -9,19 +9,20 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@react-three/drei": "^9.105.11",
+    "@react-three/fiber": "^8.16.6",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/supabase-js": "^2.42.0",
+    "@types/three": "^0.164.0",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.378.0",
     "next": "14.2.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "three": "^0.164.1",
-    "@types/three": "^0.164.0",
-    "@react-three/fiber": "^8.16.6",
-    "@react-three/drei": "^9.105.11",
     "stripe": "^15.5.0",
-    "lucide-react": "^0.378.0",
-    "clsx": "^2.1.1",
-    "tailwind-merge": "^2.3.0"
+    "tailwind-merge": "^2.3.0",
+    "three": "^0.164.1"
   },
   "devDependencies": {
     "@types/node": "^20.12.7",

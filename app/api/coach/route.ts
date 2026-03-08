@@ -1,18 +1,30 @@
 import { NextResponse } from 'next/server';
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export async function POST(req: Request) {
   try {
     const { prompt, userContext } = await req.json();
+    const apiKey = process.env.GEMINI_API_KEY;
 
-    // Placeholder for Gemini API call
-    // In a real implementation, you would use:
-    // const model = googleAI.getGenerativeModel({ model: "gemini-pro" });
-    // const result = await model.generateContent(prompt);
-    
-    const mockResponse = `As your Pinnacle AI Coach, I suggest focusing on ${userContext.goal === 'muscle_gain' ? 'progressive overload' : 'caloric deficit'} this week. Your dedication is showing!`;
+    if (!apiKey || apiKey === 'your_gemini_api_key_here') {
+      return NextResponse.json({ error: "Missing API Key" }, { status: 400 });
+    }
 
-    return NextResponse.json({ response: mockResponse });
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    const fullPrompt = `You are a professional fitness coach for the Pinnacle app. 
+    User context: ${JSON.stringify(userContext)}.
+    Task: ${prompt}
+    Keep the response concise (max 2 sentences) and highly motivating.`;
+
+    const result = await model.generateContent(fullPrompt);
+    const response = await result.response;
+    const text = response.text();
+
+    return NextResponse.json({ response: text });
   } catch (err: any) {
+    console.error("Gemini Error:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
