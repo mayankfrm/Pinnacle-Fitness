@@ -16,9 +16,13 @@ export default function AICoach() {
   const [insight, setInsight] = useState("Your AI Coach is ready. Ask for a tip or check your progress insights!");
   const [loading, setLoading] = useState(false);
   const [userInput, setUserInput] = useState("");
+  const [lastQuestion, setLastQuestion] = useState("");
 
   const getCoachTip = async (customPrompt?: string) => {
     setLoading(true);
+    if (customPrompt) setLastQuestion(customPrompt);
+    else setLastQuestion("");
+
     const finalPrompt = customPrompt || "Give me a quick fitness tip based on my goal of muscle gain.";
     
     try {
@@ -30,18 +34,26 @@ export default function AICoach() {
           userContext: { goal: "muscle_gain" }
         })
       });
-      const data = await res.json();
-      
-      // If the API returns an error or placeholder, use a local tip
-      if (data.error || data.response.includes("Placeholder")) {
-        throw new Error("Use fallback");
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        if (errorData.error === "Missing API Key") {
+          setInsight("I need a Gemini API Key to answer specific questions! Please add GEMINI_API_KEY to your Vercel/Local settings. For now, here's a general tip:");
+          throw new Error("Missing Key");
+        }
+        throw new Error("API Failed");
       }
-      
+
+      const data = await res.json();
       setInsight(data.response);
       if (customPrompt) setUserInput("");
     } catch (err) {
       const randomTip = LOCAL_TIPS[Math.floor(Math.random() * LOCAL_TIPS.length)];
-      setInsight(randomTip);
+      if (err instanceof Error && err.message === "Missing Key") {
+        setInsight(prev => prev + "\n\n" + randomTip);
+      } else {
+        setInsight(randomTip);
+      }
     } finally {
       setLoading(false);
     }
@@ -70,8 +82,13 @@ export default function AICoach() {
           </div>
         </div>
 
-        <div className="bg-[#06110b]/60 border border-[rgba(57,255,20,0.1)] rounded-2xl p-4 mb-6 min-h-[100px] flex items-center justify-center text-center">
-          <p className="text-[#8bba9b] italic text-sm leading-relaxed">
+        <div className="bg-[#06110b]/60 border border-[rgba(57,255,20,0.1)] rounded-2xl p-4 mb-6 min-h-[120px] flex flex-col items-center justify-center text-center">
+          {lastQuestion && (
+            <div className="mb-3 text-[10px] text-[#39ff14]/60 font-black uppercase tracking-widest border-b border-[#39ff14]/10 pb-2 w-full">
+              Your Question: "{lastQuestion}"
+            </div>
+          )}
+          <p className="text-[#8bba9b] italic text-sm leading-relaxed whitespace-pre-line">
             "{loading ? "Analyzing your performance data..." : insight}"
           </p>
         </div>
