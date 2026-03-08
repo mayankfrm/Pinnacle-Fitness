@@ -23,7 +23,7 @@ function cn(...inputs: ClassValue[]) {
 }
 
 const navItems = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Dashboard", href: "/", icon: LayoutDashboard },
   { name: "Gym Routines", href: "/routines", icon: Dumbbell, badge: "New" },
   { name: "Exercise Plans", href: "/exercises", icon: ClipboardList },
   { name: "Progress", href: "/progress", icon: TrendingUp },
