@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { supabase } from "@/lib/supabase";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -33,12 +33,12 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const supabase = createClientComponentClient();
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     window.location.href = "/login";
   };
-
   return (
     <aside className="fixed left-0 top-0 bottom-0 w-[250px] bg-[#0a1a10] border-r border-[rgba(57,255,20,0.15)] flex flex-col p-3 z-50">
       <div className="flex items-center gap-3 p-6 mb-4 border-b border-[rgba(57,255,20,0.15)]">

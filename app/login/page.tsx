@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Activity } from "lucide-react";
 
 export default function LoginPage() {
@@ -10,7 +9,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const router = useRouter();
+  const supabase = createClientComponentClient();
 
   // Auto-redirect if already logged in
   useEffect(() => {
@@ -19,7 +18,7 @@ export default function LoginPage() {
       if (session) window.location.href = "/";
     };
     checkUser();
-  }, []);
+  }, [supabase]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

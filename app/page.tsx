@@ -11,11 +11,12 @@ import {
   ClipboardList
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import HeroScene from "@/components/HeroScene";
-import { supabase } from "@/lib/supabase";
 
 export default function Dashboard() {
   const [userName, setUserName] = useState("User");
+  const supabase = createClientComponentClient();
 
   useEffect(() => {
     const getUser = async () => {
@@ -25,7 +26,7 @@ export default function Dashboard() {
       }
     };
     getUser();
-  }, []);
+  }, [supabase]);
 
   const stats = [
     { label: "TOTAL WORKOUTS", value: "0", icon: Dumbbell, color: "#39ff14" },

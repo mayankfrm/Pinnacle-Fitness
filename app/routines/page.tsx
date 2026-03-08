@@ -14,7 +14,8 @@ import {
 import { EXERCISES, ROUTINE_TEMPLATES, getFallbackKey, type RoutineTemplate } from "@/data/fitness-data";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { supabase } from "@/lib/supabase";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { supabase as legacySupabase } from "@/lib/supabase";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -54,6 +55,7 @@ export default function RoutinesPage() {
   const [generatedRoutine, setGeneratedRoutine] = useState<null | { key: string; isFallback: boolean; data: RoutineTemplate }>(null);
   const [showForm, setShowForm] = useState(true);
   const [saveLoading, setSaveLoading] = useState(false);
+  const supabase = createClientComponentClient();
 
   const handleGenerate = () => {
     const key = `${goal}_${level}_${days}`;
