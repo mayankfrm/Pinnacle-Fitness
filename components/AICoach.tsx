@@ -37,11 +37,16 @@ export default function AICoach() {
 
       if (!res.ok) {
         const errorData = await res.json();
-        if (errorData.error === "Missing API Key") {
+        const errorMessage = errorData.error || "API Failed";
+        
+        if (errorMessage === "Missing API Key") {
           setInsight("I need a Gemini API Key to answer specific questions! Please add GEMINI_API_KEY to your Vercel/Local settings. For now, here's a general tip:");
           throw new Error("Missing Key");
         }
-        throw new Error("API Failed");
+        
+        // Show the specific error (e.g., "API key not valid")
+        setInsight(`Error: ${errorMessage}. For now, I'll provide a general tip:`);
+        throw new Error(errorMessage);
       }
 
       const data = await res.json();
@@ -51,6 +56,8 @@ export default function AICoach() {
       const randomTip = LOCAL_TIPS[Math.floor(Math.random() * LOCAL_TIPS.length)];
       if (err instanceof Error && err.message === "Missing Key") {
         setInsight(prev => prev + "\n\n" + randomTip);
+      } else if (err instanceof Error && err.message.includes("API key not valid")) {
+         setInsight(prev => prev + "\n\n" + randomTip);
       } else {
         setInsight(randomTip);
       }
