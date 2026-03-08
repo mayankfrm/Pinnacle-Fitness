@@ -15,15 +15,18 @@ const LOCAL_TIPS = [
 export default function AICoach() {
   const [insight, setInsight] = useState("Your AI Coach is ready. Ask for a tip or check your progress insights!");
   const [loading, setLoading] = useState(false);
+  const [userInput, setUserInput] = useState("");
 
-  const getCoachTip = async () => {
+  const getCoachTip = async (customPrompt?: string) => {
     setLoading(true);
+    const finalPrompt = customPrompt || "Give me a quick fitness tip based on my goal of muscle gain.";
+    
     try {
       const res = await fetch("/api/coach", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
-          prompt: "Give me a quick fitness tip based on my goal of muscle gain.",
+          prompt: finalPrompt,
           userContext: { goal: "muscle_gain" }
         })
       });
@@ -35,11 +38,18 @@ export default function AICoach() {
       }
       
       setInsight(data.response);
+      if (customPrompt) setUserInput("");
     } catch (err) {
       const randomTip = LOCAL_TIPS[Math.floor(Math.random() * LOCAL_TIPS.length)];
       setInsight(randomTip);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && userInput.trim() && !loading) {
+      getCoachTip(userInput);
     }
   };
 
@@ -66,17 +76,36 @@ export default function AICoach() {
           </p>
         </div>
 
+        {/* Input Area */}
+        <div className="relative mb-4">
+          <input 
+            type="text"
+            value={userInput}
+            onChange={(e) => setUserInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Ask your coach anything..."
+            className="w-full bg-[#06110b] border border-[rgba(57,255,20,0.15)] rounded-xl py-3 pl-4 pr-12 text-[#e2f8e8] outline-none focus:border-[#39ff14] transition-all placeholder:text-[#5c856a] text-sm"
+          />
+          <button 
+            onClick={() => userInput.trim() && getCoachTip(userInput)}
+            disabled={loading || !userInput.trim()}
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-[#39ff14] hover:text-[#00ffff] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            <Send size={18} />
+          </button>
+        </div>
+
         <button 
-          onClick={getCoachTip}
+          onClick={() => getCoachTip()}
           disabled={loading}
-          className="w-full bg-gradient-to-r from-[#39ff14]/80 to-[#00ffff]/80 hover:from-[#39ff14] hover:to-[#00ffff] text-black font-black py-3 rounded-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 group/btn shadow-[0_5px_15px_rgba(57,255,20,0.1)] disabled:opacity-50"
+          className="w-full bg-[rgba(57,255,20,0.05)] border border-[rgba(57,255,20,0.1)] hover:bg-[rgba(57,255,20,0.1)] text-[#39ff14] font-bold py-2 rounded-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 group/btn disabled:opacity-50 text-xs"
         >
           {loading ? (
-             <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+             <div className="w-4 h-4 border-2 border-[#39ff14] border-t-transparent rounded-full animate-spin" />
           ) : (
             <>
-              <Sparkles size={18} className="group-hover/btn:animate-pulse" />
-              Get AI Insight
+              <Sparkles size={14} className="group-hover/btn:animate-pulse" />
+              General Tip
             </>
           )}
         </button>
