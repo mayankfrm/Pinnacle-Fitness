@@ -14,6 +14,7 @@ import {
 import { EXERCISES, ROUTINE_TEMPLATES, getFallbackKey, type RoutineTemplate } from "@/data/fitness-data";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { supabase } from "@/lib/supabase";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -52,6 +53,7 @@ export default function RoutinesPage() {
   
   const [generatedRoutine, setGeneratedRoutine] = useState<null | { key: string; isFallback: boolean; data: RoutineTemplate }>(null);
   const [showForm, setShowForm] = useState(true);
+  const [saveLoading, setSaveLoading] = useState(false);
 
   const handleGenerate = () => {
     const key = `${goal}_${level}_${days}`;
@@ -69,6 +71,51 @@ export default function RoutinesPage() {
       data: ROUTINE_TEMPLATES[finalKey]
     });
     setShowForm(false);
+  };
+
+  const handleSaveRoutine = async () => {
+    if (!generatedRoutine) return;
+    setSaveLoading(true);
+    
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        alert("Please log in to save routines!");
+        return;
+      }
+
+      // 1. Create Workout
+      const { data: workout, error: wError } = await supabase
+        .from('workouts')
+        .insert({
+          user_id: session.user.id,
+          workout_name: generatedRoutine.data.name,
+        })
+        .select()
+        .single();
+
+      if (wError) throw wError;
+
+      // 2. Log Exercises (We'll just log the first day's exercises as a starting point)
+      const logs = generatedRoutine.data.days[0].exercises.map(exRef => {
+        const ex = EXERCISES.find(e => e.id === exRef.id);
+        return {
+          workout_id: workout.id,
+          exercise_name: ex?.name || "Unknown",
+          sets: ex?.sets || 3,
+          reps: parseInt(ex?.reps || "10"),
+        };
+      });
+
+      const { error: lError } = await supabase.from('exercise_logs').insert(logs);
+      if (lError) throw lError;
+
+      alert("Routine saved successfully!");
+    } catch (err: any) {
+      alert("Error saving routine: " + err.message);
+    } finally {
+      setSaveLoading(false);
+    }
   };
 
   return (
@@ -190,7 +237,7 @@ export default function RoutinesPage() {
               <div>
                 <strong className="block text-[#39ff14]">Adjusted Plan</strong>
                 <p className="text-sm text-[#8bba9b] mt-0.5">
-                  For your chosen experience level, it is highly advised to follow the below plan instead of a {days} day plan.
+                   For your chosen experience level, it is highly advised to follow the below plan instead of a {days} day plan.
                 </p>
               </div>
             </div>
@@ -204,8 +251,12 @@ export default function RoutinesPage() {
               <p className="text-[#8bba9b] mt-4">{generatedRoutine.data.desc}</p>
             </div>
             <div className="flex gap-2">
-              <button className="btn-outline flex items-center gap-2 text-sm py-2">
-                <Save size={16} /> Save Routine
+              <button 
+                onClick={handleSaveRoutine}
+                disabled={saveLoading}
+                className="btn-outline flex items-center gap-2 text-sm py-2 disabled:opacity-50"
+              >
+                <Save size={16} /> {saveLoading ? "Saving..." : "Save Routine"}
               </button>
               <button className="btn-primary flex items-center gap-2 text-sm py-2">
                 <Play size={16} /> Start Workout

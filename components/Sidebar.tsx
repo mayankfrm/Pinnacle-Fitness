@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { supabase } from "@/lib/supabase";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -32,6 +33,11 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/login";
+  };
 
   return (
     <aside className="fixed left-0 top-0 bottom-0 w-[250px] bg-[#0a1a10] border-r border-[rgba(57,255,20,0.15)] flex flex-col p-3 z-50">
@@ -73,15 +79,25 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <div className="mt-auto p-4 flex items-center gap-3 border-t border-[rgba(57,255,20,0.15)] pt-6">
-        <div className="w-9 h-9 rounded-full bg-[#39ff14] flex items-center justify-center text-black font-bold text-xs">
-          VU
-        </div>
-        <div className="flex flex-col">
-          <span className="text-[13px] font-semibold">Pinnacle User</span>
-          <div className="flex items-center gap-1.5">
-            <div className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />
-            <span className="text-[11px] text-[#22c55e]">Online</span>
+      <div className="mt-auto space-y-4">
+        <button 
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-4 py-3 text-[#5c856a] hover:text-[#ef4444] hover:bg-[rgba(239,68,68,0.05)] rounded-xl transition-all group"
+        >
+          <LogOut size={18} className="group-hover:rotate-12 transition-transform" />
+          <span className="text-sm font-semibold">Logout</span>
+        </button>
+
+        <div className="p-4 flex items-center gap-3 border-t border-[rgba(57,255,20,0.15)] pt-6">
+          <div className="w-9 h-9 rounded-full bg-[#39ff14] flex items-center justify-center text-black font-bold text-xs uppercase">
+            U
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[13px] font-semibold text-[#e2f8e8]">Pinnacle User</span>
+            <div className="flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />
+              <span className="text-[11px] text-[#22c55e]">Active Session</span>
+            </div>
           </div>
         </div>
       </div>

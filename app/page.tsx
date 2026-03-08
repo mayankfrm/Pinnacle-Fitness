@@ -10,9 +10,23 @@ import {
   Clock,
   ClipboardList
 } from "lucide-react";
+import { useState, useEffect } from "react";
 import HeroScene from "@/components/HeroScene";
+import { supabase } from "@/lib/supabase";
 
 export default function Dashboard() {
+  const [userName, setUserName] = useState("User");
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user?.email) {
+        setUserName(session.user.email.split('@')[0]);
+      }
+    };
+    getUser();
+  }, []);
+
   const stats = [
     { label: "TOTAL WORKOUTS", value: "0", icon: Dumbbell, color: "#39ff14" },
     { label: "CALORIES LOGGED", value: "0", icon: Flame, color: "#facc15" },
@@ -27,7 +41,7 @@ export default function Dashboard() {
         <header className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-extrabold tracking-tight underline decoration-[#39ff14]/30 decoration-4 underline-offset-8">Dashboard</h1>
-            <p className="text-[#8bba9b] mt-4 font-medium text-lg">Good Morning 🌅, User.</p>
+            <p className="text-[#8bba9b] mt-4 font-medium text-lg">Good Morning 🌅, {userName}.</p>
           </div>
           <div className="bg-[#0f2416]/80 backdrop-blur-md border border-[rgba(57,255,20,0.15)] px-4 py-2 rounded-xl text-sm text-[#5c856a] font-bold">
             {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
